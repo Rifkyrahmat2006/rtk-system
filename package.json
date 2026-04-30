@@ -1,0 +1,25 @@
+{
+  "name": "rtk-system",
+  "version": "5.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node server/mcp-http.js",
+    "dev": "node --watch server/mcp-http.js",
+    "index": "node indexer/index-project.js",
+    "db:init": "node db/init.js",
+    "db:test": "node test-db.js",
+    "setup": "setup-v5.bat",
+    "pm2:start": "pm2 start ecosystem.config.cjs",
+    "pm2:stop": "pm2 stop rtk-mcp",
+    "pm2:restart": "pm2 restart rtk-mcp",
+    "pm2:logs": "pm2 logs rtk-mcp"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "dotenv": "^16.4.0",
+    "express": "^4.18.2",
+    "mysql2": "^3.11.5",
+    "node-fetch": "^3.3.2",
+    "zod": "^4.4.1"
+  }
+}

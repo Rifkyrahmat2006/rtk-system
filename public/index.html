@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTK Dashboard v5.0</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>🤖 RTK Dashboard</h1>
+                <span class="version">v5.0.0</span>
+            </div>
+            <div class="status" id="serverStatus">
+                <span class="status-dot"></span>
+                <span>Checking...</span>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav">
+            <button class="nav-btn active" data-tab="overview">📊 Overview</button>
+            <button class="nav-btn" data-tab="projects">📁 Projects</button>
+            <button class="nav-btn" data-tab="tasks">📋 Tasks</button>
+            <button class="nav-btn" data-tab="logs">📝 Activity Logs</button>
+            <button class="nav-btn" data-tab="config">⚙️ Config</button>
+        </nav>
+
+        <!-- Content -->
+        <main class="content">
+            <!-- Overview Tab -->
+            <div class="tab-content active" id="overview">
+                <h2>System Overview</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📁</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="totalProjects">-</div>
+                            <div class="stat-label">Total Projects</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="totalTasks">-</div>
+                            <div class="stat-label">Total Tasks</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="activeTasks">-</div>
+                            <div class="stat-label">Active Tasks</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">📝</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="totalLogs">-</div>
+                            <div class="stat-label">Activity Logs</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Recent Activity</h3>
+                    <div id="recentActivity" class="activity-list">
+                        <div class="loading">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Tab -->
+            <div class="tab-content" id="projects">
+                <div class="section-header">
+                    <h2>Projects</h2>
+                    <button class="btn btn-primary" onclick="showAddProject()">+ Add Project</button>
+                </div>
+                
+                <div id="projectsList" class="projects-list">
+                    <div class="loading">Loading projects...</div>
+                </div>
+
+                <!-- Add Project Modal -->
+                <div id="addProjectModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Add New Project</h3>
+                            <button class="close" onclick="closeModal('addProjectModal')">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Project Name</label>
+                                <input type="text" id="projectName" placeholder="e.g., smartani">
+                            </div>
+                            <div class="form-group">
+                                <label>Project Path</label>
+                                <input type="text" id="projectPath" placeholder="e.g., D:\path\to\project">
+                            </div>
+                            <div class="form-group">
+                                <label>Tech Stack (optional)</label>
+                                <input type="text" id="projectTechStack" placeholder="e.g., Node.js, Vue.js">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" onclick="closeModal('addProjectModal')">Cancel</button>
+                            <button class="btn btn-primary" onclick="addProject()">Add Project</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks Tab -->
+            <div class="tab-content" id="tasks">
+                <div class="section-header">
+                    <h2>Tasks</h2>
+                    <div class="filters">
+                        <select id="taskProjectFilter" onchange="loadTasks()">
+                            <option value="">All Projects</option>
+                        </select>
+                        <select id="taskStatusFilter" onchange="loadTasks()">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="tasksList" class="tasks-list">
+                    <div class="loading">Loading tasks...</div>
+                </div>
+            </div>
+
+            <!-- Logs Tab -->
+            <div class="tab-content" id="logs">
+                <div class="section-header">
+                    <h2>Activity Logs</h2>
+                    <div class="filters">
+                        <select id="logProjectFilter" onchange="loadLogs()">
+                            <option value="">All Projects</option>
+                        </select>
+                        <select id="logActionFilter" onchange="loadLogs()">
+                            <option value="">All Actions</option>
+                        </select>
+                        <input type="number" id="logLimit" value="50" min="10" max="200" onchange="loadLogs()">
+                    </div>
+                </div>
+                
+                <div id="logsList" class="logs-list">
+                    <div class="loading">Loading logs...</div>
+                </div>
+            </div>
+
+            <!-- Config Tab -->
+            <div class="tab-content" id="config">
+                <h2>Configuration</h2>
+                
+                <div class="section">
+                    <h3>Server Settings</h3>
+                    <div class="config-grid">
+                        <div class="config-item">
+                            <label>Port</label>
+                            <input type="number" id="configPort" value="3000">
+                        </div>
+                        <div class="config-item">
+                            <label>API Key</label>
+                            <input type="password" id="configApiKey" placeholder="Enter API key">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Database Settings</h3>
+                    <div class="config-grid">
+                        <div class="config-item">
+                            <label>Host</label>
+                            <input type="text" id="configDbHost" value="localhost">
+                        </div>
+                        <div class="config-item">
+                            <label>Port</label>
+                            <input type="number" id="configDbPort" value="3306">
+                        </div>
+                        <div class="config-item">
+                            <label>User</label>
+                            <input type="text" id="configDbUser" value="root">
+                        </div>
+                        <div class="config-item">
+                            <label>Password</label>
+                            <input type="password" id="configDbPassword">
+                        </div>
+                        <div class="config-item">
+                            <label>Database</label>
+                            <input type="text" id="configDbName" value="rtk_system">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>MCP Tools</h3>
+                    <div class="tools-list" id="toolsList">
+                        <div class="loading">Loading tools...</div>
+                    </div>
+                </div>
+
+                <div class="section-footer">
+                    <button class="btn btn-secondary" onclick="loadConfig()">Reset</button>
+                    <button class="btn btn-primary" onclick="saveConfig()">Save Configuration</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/dashboard.js"></script>
+</body>
+</html>
