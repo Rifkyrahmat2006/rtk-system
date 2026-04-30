@@ -46,6 +46,50 @@ router.post('/projects', async (req, res) => {
   }
 });
 
+// Delete project
+router.delete('/projects/:name', async (req, res) => {
+  try {
+    const { name } = req.params;
+    await Projects.deleteProject(name);
+    res.json({ success: true, message: 'Project deleted' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Index project
+router.post('/projects/:name/index', async (req, res) => {
+  try {
+    const { name } = req.params;
+    const project = await Projects.getProject(name);
+    
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    
+    // Import indexer dynamically
+    const { indexProject } = await import('../indexer/index-lib.js');
+    
+    // Run indexing (this will take time)
+    const result = await indexProject(name, project.path);
+    
+    // Update project last_indexed
+    await Projects.updateProjectIndexTime(name);
+    
+    // Update index stats
+    await FileIndex.updateIndexStats(name, result.files, result.chunks, true);
+    
+    res.json({ 
+      success: true, 
+      files: result.files, 
+      chunks: result.chunks 
+    });
+  } catch (error) {
+    console.error('Index error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get tasks
 router.get('/tasks', async (req, res) => {
   try {

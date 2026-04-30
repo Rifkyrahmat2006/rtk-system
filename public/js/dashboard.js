@@ -115,6 +115,13 @@ async function loadProjects() {
                         Chunks
                     </div>
                 </div>
+                <div class="project-actions">
+                    ${!p.last_indexed ? 
+                        `<button class="btn-small btn-index" onclick="indexProject('${p.name}')">🔍 Index Now</button>` :
+                        `<button class="btn-small btn-reindex" onclick="indexProject('${p.name}')">🔄 Re-index</button>`
+                    }
+                    <button class="btn-small btn-delete" onclick="deleteProject('${p.name}')">🗑️ Delete</button>
+                </div>
             </div>
         `).join('');
         
@@ -297,6 +304,80 @@ function updateProjectFilters(projects) {
     
     taskFilter.innerHTML = '<option value="">All Projects</option>' + options;
     logFilter.innerHTML = '<option value="">All Projects</option>' + options;
+}
+
+// Index Project
+async function indexProject(projectName) {
+    document.getElementById('indexingProjectName').textContent = projectName;
+    document.getElementById('indexProjectModal').classList.add('active');
+    document.getElementById('indexCloseBtn').disabled = true;
+    
+    const progressBar = document.getElementById('indexProgress');
+    const statusEl = document.getElementById('indexStatus');
+    const logEl = document.getElementById('indexLog');
+    
+    progressBar.style.width = '0%';
+    statusEl.textContent = 'Starting indexing...';
+    logEl.innerHTML = '';
+    
+    try {
+        const response = await fetch(`${API_BASE}/projects/${projectName}/index`, {
+            method: 'POST'
+        });
+        
+        if (!response.ok) throw new Error('Indexing failed');
+        
+        // Simulate progress (real implementation would use SSE or WebSocket)
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 5;
+            if (progress <= 90) {
+                progressBar.style.width = progress + '%';
+                progressBar.textContent = progress + '%';
+                statusEl.textContent = `Indexing files... ${progress}%`;
+                logEl.innerHTML += `<div class="index-log-entry">Processing files...</div>`;
+                logEl.scrollTop = logEl.scrollHeight;
+            }
+        }, 500);
+        
+        const result = await response.json();
+        
+        clearInterval(interval);
+        progressBar.style.width = '100%';
+        progressBar.textContent = '100%';
+        statusEl.textContent = '✅ Indexing completed!';
+        logEl.innerHTML += `<div class="index-log-entry">✅ Indexed ${result.files} files, ${result.chunks} chunks</div>`;
+        
+        document.getElementById('indexCloseBtn').disabled = false;
+        
+        // Reload projects
+        setTimeout(() => {
+            closeModal('indexProjectModal');
+            loadProjects();
+        }, 2000);
+        
+    } catch (error) {
+        statusEl.textContent = '❌ Indexing failed';
+        logEl.innerHTML += `<div class="index-log-entry">❌ Error: ${error.message}</div>`;
+        document.getElementById('indexCloseBtn').disabled = false;
+    }
+}
+
+// Delete Project
+async function deleteProject(projectName) {
+    if (!confirm(`Are you sure you want to delete project "${projectName}"?`)) {
+        return;
+    }
+    
+    try {
+        await fetch(`${API_BASE}/projects/${projectName}`, {
+            method: 'DELETE'
+        });
+        
+        loadProjects();
+    } catch (error) {
+        alert('Failed to delete project: ' + error.message);
+    }
 }
 
 // Initialize

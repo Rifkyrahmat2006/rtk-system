@@ -115,6 +115,27 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Index Project Modal -->
+                <div id="indexProjectModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Index Project</h3>
+                            <button class="close" onclick="closeModal('indexProjectModal')">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Indexing project: <strong id="indexingProjectName"></strong></p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="indexProgress"></div>
+                            </div>
+                            <div id="indexStatus" class="index-status">Preparing...</div>
+                            <div id="indexLog" class="index-log"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" onclick="closeModal('indexProjectModal')" id="indexCloseBtn">Close</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Tasks Tab -->
